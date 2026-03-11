@@ -1,4 +1,3 @@
-
 FROM node:20-slim
 
 RUN apt-get update && apt-get install -y \
@@ -27,15 +26,16 @@ ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 
 WORKDIR /app
 
-COPY server/package*.json ./server/
-RUN cd server && npm ci --production
+COPY server/package.json ./server/
+RUN cd server && npm install --omit=dev
 
-COPY client/package*.json ./client/
-RUN cd client && npm ci
+COPY client/package.json ./client/
+RUN cd client && npm install
 COPY client/ ./client/
 RUN cd client && npm run build
 
 COPY server/ ./server/
+
 COPY start.sh ./start.sh
 RUN chmod +x start.sh
 
