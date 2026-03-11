@@ -1,0 +1,28 @@
+{
+  "name": "usato-ia-server",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "nodemon index.js",
+    "start": "node index.js",
+    "scrape": "node jobs/scrapeAll.js",
+    "migrate": "node models/migrate.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "better-sqlite3": "^11.3.0",
+    "node-cron": "^3.0.3",
+    "axios": "^1.7.7",
+    "cheerio": "^1.0.0",
+    "puppeteer": "^23.4.0",
+    "dotenv": "^16.4.5",
+    "helmet": "^7.1.0",
+    "compression": "^1.7.4",
+    "express-rate-limit": "^7.4.0",
+    "winston": "^3.14.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}
