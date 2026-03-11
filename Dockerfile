@@ -1,6 +1,6 @@
+
 FROM node:20-slim
 
-# Install Chromium for Puppeteer
 RUN apt-get update && apt-get install -y \
     chromium \
     fonts-liberation \
@@ -27,23 +27,18 @@ ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 
 WORKDIR /app
 
-# Install server deps
 COPY server/package*.json ./server/
 RUN cd server && npm ci --production
 
-# Install client deps and build
 COPY client/package*.json ./client/
 RUN cd client && npm ci
 COPY client/ ./client/
 RUN cd client && npm run build
 
-# Copy server source
 COPY server/ ./server/
-COPY .env.example ./.env.example
 COPY start.sh ./start.sh
 RUN chmod +x start.sh
 
-# Create data directory
 RUN mkdir -p server/data server/logs
 
 EXPOSE 3001
