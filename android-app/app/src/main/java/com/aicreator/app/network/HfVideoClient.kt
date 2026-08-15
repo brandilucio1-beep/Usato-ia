@@ -8,6 +8,7 @@ import java.io.IOException
 import java.net.SocketTimeoutException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -41,14 +42,21 @@ class HfVideoClient(
             add("https://api-inference.huggingface.co/models/$modelId")
         }
 
+        // Il token è input libero dell'utente: caratteri fuori dall'ASCII visibile
+        // non sono ammessi in un header HTTP e farebbero lanciare OkHttp.
+        val safeToken = token.filter { it.code in 0x21..0x7e }
+
         var notFound = GenResult.Error(ErrorKind.NOT_FOUND, context.getString(R.string.error_model_not_found))
         for (endpoint in endpoints) {
             val result = try {
-                callEndpoint(endpoint, prompt, token)
+                callEndpoint(endpoint, prompt, safeToken)
             } catch (e: SocketTimeoutException) {
                 GenResult.Error(ErrorKind.TIMEOUT, context.getString(R.string.error_timeout))
             } catch (e: IOException) {
                 GenResult.Error(ErrorKind.NETWORK, context.getString(R.string.error_network))
+            } catch (e: IllegalArgumentException) {
+                // URL o header non costruibili (es. endpoint personalizzato malformato)
+                GenResult.Error(ErrorKind.UNKNOWN, context.getString(R.string.error_unexpected))
             }
             when {
                 result is GenResult.Error && result.kind == ErrorKind.NOT_FOUND -> {
@@ -62,10 +70,14 @@ class HfVideoClient(
     }
 
     private fun callEndpoint(endpoint: String, prompt: String, token: String): GenResult {
+        // L'endpoint può arrivare dal campo libero nelle Impostazioni: se non è un
+        // URL http(s) valido, trattalo come "non disponibile" invece di lanciare.
+        val httpUrl = endpoint.toHttpUrlOrNull()
+            ?: return GenResult.Error(ErrorKind.NOT_FOUND, context.getString(R.string.error_model_not_found))
         val body = JSONObject().put("inputs", prompt).toString()
             .toRequestBody("application/json".toMediaType())
         val request = Request.Builder()
-            .url(endpoint)
+            .url(httpUrl)
             .header("Authorization", "Bearer $token")
             .header("x-wait-for-model", "true")
             .header("x-use-cache", "false")
@@ -152,8 +164,11 @@ class HfVideoClient(
     }
 
     private fun downloadVideo(url: String): GenResult {
+        // URL fornito dal server: validalo prima di costruire la richiesta.
+        val httpUrl = url.toHttpUrlOrNull()
+            ?: return GenResult.Error(ErrorKind.UNKNOWN, context.getString(R.string.error_unexpected))
         // Nessun header di autenticazione: l'URL può puntare a host di terze parti.
-        val request = Request.Builder().url(url).build()
+        val request = Request.Builder().url(httpUrl).build()
         client.newCall(request).execute().use { response ->
             if (!response.isSuccessful) {
                 return GenResult.Error(ErrorKind.SERVER, context.getString(R.string.error_server))
