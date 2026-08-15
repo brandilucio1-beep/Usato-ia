@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AI Creator</string>
+
+    <!-- Navigazione -->
+    <string name="tab_images">Immagini</string>
+    <string name="tab_video">Video</string>
+    <string name="tab_gallery">Galleria</string>
+    <string name="settings_title">Impostazioni</string>
+    <string name="back">Indietro</string>
+    <string name="open_settings">Apri le impostazioni</string>
+
+    <!-- Prompt e opzioni -->
+    <string name="prompt_label">Prompt</string>
+    <string name="prompt_placeholder_image">Descrivi l\'immagine che vuoi creare…</string>
+    <string name="prompt_placeholder_video">Descrivi il video che vuoi creare…</string>
+    <string name="style_section">Stile</string>
+    <string name="style_photo">Fotorealistico</string>
+    <string name="style_digital">Arte digitale</string>
+    <string name="style_watercolor">Acquerello</string>
+    <string name="style_anime">Anime</string>
+    <string name="style_cyberpunk">Cyberpunk</string>
+    <string name="style_fantasy">Fantasy</string>
+    <string name="style_minimal">Minimal</string>
+    <string name="format_section">Formato</string>
+    <string name="aspect_square">Quadrato</string>
+    <string name="aspect_landscape">Orizzontale</string>
+    <string name="aspect_portrait">Verticale</string>
+    <string name="model_section">Modello</string>
+    <string name="model_quality">Qualità</string>
+    <string name="model_fast">Veloce</string>
+
+    <!-- Azioni -->
+    <string name="generate">Genera</string>
+    <string name="regenerate">Rigenera</string>
+    <string name="save">Salva</string>
+    <string name="saved">Salvata</string>
+    <string name="share">Condividi</string>
+    <string name="delete">Elimina</string>
+    <string name="close">Chiudi</string>
+    <string name="cancel">Annulla</string>
+    <string name="retry">Riprova</string>
+    <string name="share_with">Condividi con…</string>
+    <string name="play_video">Riproduci video</string>
+
+    <!-- Stati di generazione -->
+    <string name="generating_image">Creazione dell\'immagine in corso… può richiedere fino a un minuto.</string>
+    <string name="generating_video">Creazione del video in corso… può richiedere diversi minuti. Tentativo %1$d.</string>
+    <string name="video_queued">Modello in coda, riprovo tra %1$d s… (tentativo %2$d)</string>
+    <string name="image_ready">La tua immagine è pronta!</string>
+    <string name="video_ready">Il tuo video è pronto!</string>
+    <string name="video_info_banner">La generazione video usa risorse gratuite: può essere lenta o non disponibile. Tieni l\'app aperta durante la generazione.</string>
+    <string name="video_no_token_title">Serve un token gratuito</string>
+    <string name="video_no_token_text">Per generare video serve un token gratuito di Hugging Face. Crealo su huggingface.co e inseriscilo nelle Impostazioni.</string>
+    <string name="video_configure_token">Configura il token Hugging Face</string>
+
+    <!-- Salvataggio -->
+    <string name="saved_to_gallery_image">Immagine salvata nella Galleria</string>
+    <string name="saved_to_gallery_video">Video salvato nella Galleria</string>
+    <string name="save_failed">Salvataggio non riuscito, riprova</string>
+    <string name="permission_needed">Per salvare serve il permesso di scrittura</string>
+    <string name="deleted">Elemento eliminato</string>
+
+    <!-- Galleria -->
+    <string name="gallery_empty_title">Nessuna creazione</string>
+    <string name="gallery_empty_text">Le tue creazioni appariranno qui. Genera un\'immagine o un video per iniziare!</string>
+
+    <!-- Impostazioni -->
+    <string name="settings_hf_token">Token Hugging Face</string>
+    <string name="settings_hf_token_hint">hf_…</string>
+    <string name="settings_show_token">Mostra token</string>
+    <string name="settings_video_model">Modello video</string>
+    <string name="settings_endpoint_override">Endpoint personalizzato (avanzato)</string>
+    <string name="settings_endpoint_override_hint">https://… (lascia vuoto per usare quello predefinito)</string>
+    <string name="settings_save">Salva impostazioni</string>
+    <string name="settings_saved">Impostazioni salvate</string>
+    <string name="settings_help_title">Come ottenere il token gratuito</string>
+    <string name="settings_help_text">1. Crea un account gratuito su huggingface.co\n2. Vai su huggingface.co/settings/tokens\n3. Crea un token di tipo \"Read\" e incollalo qui sopra.\n\nIl token resta salvato solo sul tuo dispositivo.</string>
+
+    <!-- Errori -->
+    <string name="error_timeout">Il server sta impiegando troppo tempo, riprova tra poco.</string>
+    <string name="error_network">Connessione assente: controlla la rete e riprova.</string>
+    <string name="error_server">Servizio momentaneamente sovraccarico, riprova tra poco.</string>
+    <string name="error_unexpected">Risposta inattesa dal servizio, riprova.</string>
+    <string name="error_auth">Token non valido: controlla le Impostazioni.</string>
+    <string name="error_model_not_found">Questo modello non è al momento disponibile sull\'API gratuita. Prova un altro modello nelle Impostazioni (es. damo-vilab/text-to-video-ms-1.7b).</string>
+    <string name="error_video_give_up">Il servizio gratuito è molto occupato adesso. Riprova più tardi o cambia modello nelle Impostazioni.</string>
+</resources>
