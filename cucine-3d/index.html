@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Progetta la tua Cucina 3D</title>
+  <meta name="description" content="Configuratore 3D di cucine componibili ispirato al catalogo Mondo Convenienza: componi la tua cucina su pareti diverse, con suggerimenti e preventivo." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍳</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <!-- three.js incluso in locale (vendor/): l'app funziona anche senza connessione.
+       In alternativa si può puntare al CDN: https://unpkg.com/three@0.160.0/build/three.module.js -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "./vendor/three.module.js",
+      "three/addons/controls/OrbitControls.js": "./vendor/OrbitControls.js"
+    }
+  }
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-icon">🍳</span>
+      <div>
+        <h1>Progetta la tua Cucina&nbsp;3D</h1>
+        <p>Configuratore ispirato al catalogo cucine componibili Mondo Convenienza</p>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <button id="btn-save" class="btn ghost" title="Salva il progetto nel browser">💾 Salva</button>
+      <button id="btn-new" class="btn ghost" title="Ricomincia da zero">✨ Nuovo progetto</button>
+      <div class="price-pill" title="Preventivo indicativo, esclusi trasporto e montaggio">
+        <span>Preventivo</span>
+        <strong id="price-total">€ 0</strong>
+      </div>
+    </div>
+  </header>
+
+  <main class="layout">
+    <!-- ============ SIDEBAR SINISTRA: CONTROLLI ============ -->
+    <aside class="sidebar" id="sidebar">
+      <section class="panel">
+        <h2>1 · La tua stanza</h2>
+        <div class="room-inputs">
+          <label>Larghezza (m)
+            <input type="number" id="room-w" min="2" max="8" step="0.1" value="4.0" />
+          </label>
+          <label>Profondità (m)
+            <input type="number" id="room-d" min="2" max="8" step="0.1" value="3.5" />
+          </label>
+          <label>Altezza (m)
+            <input type="number" id="room-h" min="2.2" max="4" step="0.05" value="2.7" />
+          </label>
+        </div>
+        <button id="btn-room" class="btn secondary full">Applica dimensioni</button>
+      </section>
+
+      <section class="panel">
+        <h2>2 · Modello cucina</h2>
+        <div id="model-list" class="model-list"><!-- generato da main.js --></div>
+        <p id="model-desc" class="hint"></p>
+      </section>
+
+      <section class="panel">
+        <h2>3 · Finitura ante</h2>
+        <div id="finish-list" class="finish-list"><!-- swatch generati --></div>
+        <p id="finish-label" class="hint"></p>
+      </section>
+
+      <section class="panel">
+        <h2>4 · Parete attiva</h2>
+        <div class="wall-grid" id="wall-grid">
+          <button class="wall-btn" data-wall="nord">Parete Nord</button>
+          <button class="wall-btn" data-wall="est">Parete Est</button>
+          <button class="wall-btn" data-wall="ovest">Parete Ovest</button>
+          <button class="wall-btn" data-wall="sud">Parete Sud</button>
+        </div>
+        <p class="hint" id="wall-usage"></p>
+      </section>
+
+      <section class="panel">
+        <h2>5 · Aggiungi moduli</h2>
+        <div id="module-buttons" class="module-buttons"><!-- generati --></div>
+        <div class="row-gap">
+          <button id="btn-compact" class="btn ghost full">📐 Compatta parete attiva</button>
+          <button id="btn-remove" class="btn danger full" disabled>🗑 Rimuovi modulo selezionato</button>
+        </div>
+        <p class="hint">Clicca un modulo nella scena 3D per selezionarlo. I moduli si accostano automaticamente lungo la parete attiva.</p>
+      </section>
+    </aside>
+
+    <!-- ============ CANVAS 3D ============ -->
+    <div class="viewport">
+      <canvas id="scene-canvas"></canvas>
+      <div class="viewport-help">🖱 Trascina per ruotare · Rotella per zoom · Tasto destro per spostare</div>
+      <div id="toast" class="toast" hidden></div>
+    </div>
+
+    <!-- ============ PANNELLO DESTRO ============ -->
+    <aside class="rightbar" id="rightbar">
+      <div class="tabs">
+        <button class="tab active" data-tab="tips">💡 Suggerimenti <span id="warn-badge" class="badge" hidden>0</span></button>
+        <button class="tab" data-tab="summary">🧾 Riepilogo</button>
+      </div>
+
+      <div id="tab-tips" class="tab-body">
+        <div id="warnings-box"></div>
+        <div id="advice-box"></div>
+      </div>
+
+      <div id="tab-summary" class="tab-body" hidden>
+        <div id="summary-list"></div>
+        <div class="summary-total">
+          <span>Totale indicativo</span>
+          <strong id="price-total-2">€ 0</strong>
+        </div>
+        <p class="hint">Prezzi indicativi ricavati dal listino delle composizioni tipo (elettrodomestici inclusi nei moduli attrezzati). Esclusi trasporto e montaggio. Per il preventivo reale visita <strong>mondoconv.it</strong> o un punto vendita.</p>
+      </div>
+    </aside>
+  </main>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
