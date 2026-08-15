@@ -8,8 +8,25 @@ import { computeTips } from './tips.js';
 const STORAGE_KEY = 'cucina3d-progetto';
 const $ = (sel) => document.querySelector(sel);
 
+// localStorage può essere bloccato (iframe sandbox, navigazione privata):
+// in quel caso si degrada a un salvataggio in memoria per la sessione.
+const storage = (() => {
+  try {
+    localStorage.setItem('__cucina3d_test', '1');
+    localStorage.removeItem('__cucina3d_test');
+    return localStorage;
+  } catch {
+    const mem = new Map();
+    return {
+      getItem: (k) => mem.get(k) ?? null,
+      setItem: (k, v) => mem.set(k, String(v)),
+      removeItem: (k) => mem.delete(k),
+    };
+  }
+})();
+
 // ---------- Stato ----------
-let state = planner.deserialize(localStorage.getItem(STORAGE_KEY) ?? 'null');
+let state = planner.deserialize(storage.getItem(STORAGE_KEY) ?? 'null');
 let selectedId = null;
 
 // ---------- Scena ----------
@@ -33,7 +50,7 @@ function toast(msg, isError = false) {
 let saveTimer = null;
 function scheduleSave() {
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => localStorage.setItem(STORAGE_KEY, planner.serialize(state)), 300);
+  saveTimer = setTimeout(() => storage.setItem(STORAGE_KEY, planner.serialize(state)), 300);
 }
 
 // ---------- Ricostruzione cucina 3D ----------
@@ -254,15 +271,21 @@ window.addEventListener('keydown', (e) => {
 });
 
 $('#btn-save').onclick = () => {
-  localStorage.setItem(STORAGE_KEY, planner.serialize(state));
+  storage.setItem(STORAGE_KEY, planner.serialize(state));
   toast('Progetto salvato nel browser. 💾');
 };
 
+// Conferma in due click (i dialog nativi possono essere bloccati negli iframe)
+let confirmNewUntil = 0;
 $('#btn-new').onclick = () => {
-  if (state.placements.length && !confirm('Ricominciare da zero? Il progetto attuale verrà cancellato.')) return;
+  if (state.placements.length && Date.now() > confirmNewUntil) {
+    confirmNewUntil = Date.now() + 4000;
+    toast('Clicca di nuovo "Nuovo progetto" per confermare: il progetto attuale verrà cancellato.', true);
+    return;
+  }
   state = planner.createState();
   selectedId = null;
-  localStorage.removeItem(STORAGE_KEY);
+  storage.removeItem(STORAGE_KEY);
   $('#room-w').value = state.room.w.toFixed(1);
   $('#room-d').value = state.room.d.toFixed(1);
   $('#room-h').value = state.room.h.toFixed(1);
